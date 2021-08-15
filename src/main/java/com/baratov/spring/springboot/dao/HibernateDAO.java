@@ -31,10 +31,10 @@ public class HibernateDAO implements DAO {
 
     @Override
     public void updateUser(User updateUser) throws SaveObjectException {
-        User user = findByUsername(updateUser.getUsername());
+        User user = findByUserEmail(updateUser.getEmail());
 
         if (user != null && user.getId() != updateUser.getId()) {
-            throw new SaveObjectException("Exception: User с таким именем уже существует");
+            throw new SaveObjectException("Exception: User с таким Email уже существует");
         }
         entityManager.merge(updateUser);
     }
@@ -58,11 +58,11 @@ public class HibernateDAO implements DAO {
     }
 
     @Override
-    public User findByUsername(String username) {
+    public User findByUserEmail(String userEmail) {
         User user = new User();
         try {
-            user = entityManager.createQuery("SELECT user FROM User user WHERE user.username = :username", User.class)
-                    .setParameter("username", username)
+            user = entityManager.createQuery("SELECT user FROM User user WHERE user.email = :username", User.class)
+                    .setParameter("username", userEmail)
                     .getSingleResult();
         } catch (NoResultException e) {
             return null;

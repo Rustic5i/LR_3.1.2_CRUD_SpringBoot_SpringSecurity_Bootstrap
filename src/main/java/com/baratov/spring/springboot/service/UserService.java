@@ -43,18 +43,18 @@ public class UserService implements UserDetailsService, IUserService {
     @Override
     @Transactional
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUsername(username);
+        User user = findByUserEmail(username);
         if (user == null) {
             throw new UsernameNotFoundException(String.format("User '%s' not found ", username));
         }
-        return new org.springframework.security.core.userdetails.User(user.getUsername(),
+        return new org.springframework.security.core.userdetails.User(user.getEmail(),
                 user.getPassword(), user.getAuthorities());
     }
 
     @Override
     @Transactional
-    public User findByUsername(String username) {
-        User user = dao.findByUsername(username);
+    public User findByUserEmail(String userEmail) {
+        User user = dao.findByUserEmail(userEmail);
         Hibernate.initialize(user.getAuthorities());
         return user;
     }
@@ -66,7 +66,8 @@ public class UserService implements UserDetailsService, IUserService {
     @Transactional(rollbackFor = {Exception.class})
     public void registrationUser(User newUser) throws SaveObjectException {
         User user = new User();
-        user.setUsername(newUser.getUsername());
+        user.setLastName(newUser.getLastName());
+        user.setFirstName(newUser.getFirstName());
         user.setAge(newUser.getAge());
         user.setEmail(newUser.getEmail());
         user.setRoles(newUser.getRoles());
@@ -106,8 +107,8 @@ public class UserService implements UserDetailsService, IUserService {
     @Transactional(rollbackFor = {Exception.class})
     public void updateUser(User updateUser) throws SaveObjectException {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        User currentUser = dao.findByUsername(authentication.getName());
-        if ((currentUser.getId() == updateUser.getId()) && !(currentUser.getUsername().equals(updateUser.getUsername()))) {
+        User currentUser = dao.findByUserEmail(authentication.getName());
+        if ((currentUser.getId() == updateUser.getId()) && !(currentUser.getEmail().equals(updateUser.getUsername()))) {
             dao.updateUser(updateUser);
             updatePrincipal(updateUser);
         } else {
@@ -116,7 +117,7 @@ public class UserService implements UserDetailsService, IUserService {
     }
 
     public void updatePrincipal(User updateUser) {
-        Authentication authentication = new PreAuthenticatedAuthenticationToken(updateUser, updateUser.getUsername());
+        Authentication authentication = new PreAuthenticatedAuthenticationToken(updateUser, updateUser.getEmail());
         SecurityContextHolder.getContext().setAuthentication(authentication);
         //////////////
 //        UsernamePasswordAuthenticationToken authReq

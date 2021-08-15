@@ -29,9 +29,9 @@ public class UserController {
 
     @GetMapping("/user")
     public String index(Model model, Principal principal) {
-        User currentUser = userService.findByUsername(principal.getName());
+        User currentUser = userService.findByUserEmail(principal.getName());
 
-        model.addAttribute("currentUserName", currentUser.getUsername());
+        model.addAttribute("currentUserEmail", currentUser.getEmail());
 
         model.addAttribute("currentUserRoles", currentUser.getRoles()
                 .toString()
@@ -40,7 +40,6 @@ public class UserController {
                 .replace("]", ""));
 
         model.addAttribute("currentUser", currentUser);
-        model.addAttribute("test","БАЦЦЦЦ!!!");
         return "view/index";
     }
 }

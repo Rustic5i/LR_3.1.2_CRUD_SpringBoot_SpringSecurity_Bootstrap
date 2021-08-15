@@ -7,7 +7,7 @@ import java.util.List;
 import java.util.Set;
 
 public interface IUserService {
-    User findByUsername(String username);
+    User findByUserEmail(String userEmail);
 
     void registrationUser(User newUser) throws SaveObjectException;
 

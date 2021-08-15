@@ -43,16 +43,17 @@ public class AdminController {
 
     @GetMapping("/admin")
     public String index(Model model, Principal principal) {
-        User currentUser = userService.findByUsername(principal.getName());
+        User currentUser = userService.findByUserEmail(principal.getName());
 
-        model.addAttribute("currentUserName", currentUser.getUsername());
+        model.addAttribute("currentUserEmail", currentUser.getEmail());
 
         model.addAttribute("currentUserRoles", currentUser.getRoles()
                 .toString()
                 .replace("[", "")
                 .replace("ROLE_","")
                 .replace("]",""));
-        model.addAttribute("currentUserName", principal.getName());
+
+        model.addAttribute("currentUserEmail", principal.getName());
         model.addAttribute("currentUser",currentUser);
         model.addAttribute("people", userService.getAllUsers());
         return "view/index";
@@ -73,7 +74,7 @@ public class AdminController {
         } catch (SaveObjectException e) {
             e.getMessage();
             bindingResult.rejectValue("username", "SaveObjectException",
-                    "Exception: The user with the name " + user.getUsername() + " already exists");
+                    "Exception: The user with the name " + user.getEmail() + " already exists");
             return "view/index";
         }
         return "redirect:/admin";
@@ -105,15 +106,9 @@ public class AdminController {
         } catch (SaveObjectException e) {
             e.getMessage();
             bindingResult.rejectValue("username", "SaveObjectException",
-                    "Exception: The user with the name " + updateuser.getUsername() + " already exists");
+                    "Exception: The user with the name " + updateuser.getEmail() + " already exists");
             return "view/edit";
         }
         return "redirect:/admin";
     }
-    ///////////////
-//    @GetMapping("/admin/{id}/edit") //ModelAndView
-//    public ModelAndView editt(@ModelAttribute("id") Long id, Model model) {
-//        model.addAttribute("user", userService.getUserById(id));
-//        return new ModelAndView("edit","user",userService.getUserById(id));
-//    }
 }

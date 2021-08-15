@@ -18,7 +18,7 @@
         <nav class="navbar navbar-dark bg-dark">
             <div class="container-fluid">
                 <div>
-                    <span class="navbar-brand mb-0 h1" th:text="${currentUserName}">userName</span>
+                    <span class="navbar-brand mb-0 h1" th:text="${currentUserEmail}">userName</span>
                     <span class="navbar-brand">with roles:</span>
                     <span class="navbar-brand" th:text="${currentUserRoles}">userRole</span>
                 </div>
@@ -63,6 +63,7 @@
                             <table border="1" class="table table-hover">
                                 <tr>
                                     <th>ID</th>
+                                    <th>First Name</th>
                                     <th>Last Name</th>
                                     <th>Age</th>
                                     <th>Email</th>
@@ -72,11 +73,12 @@
                                 </tr>
                                 <tr>
                                 <tr th:each="user : ${people}">
-                                    <td th:utext="${user.getId()}"></td>
-                                    <td th:utext="${user.getUsername()}"></td>
-                                    <td th:utext="${user.getAge()}"></td>
-                                    <td th:utext="${user.getEmail()}"></td>
-                                    <td th:utext="${user.getAuthorities()}"></td>
+                                    <td th:utext="${user.id}"></td>
+                                    <td th:utext="${user.firstName}"></td>
+                                    <td th:utext="${user.lastName}"></td>
+                                    <td th:utext="${user.age}"></td>
+                                    <td th:utext="${user.email}"></td>
+                                    <td th:utext="${user.roles}"></td>
                                     <td>
                                         <a class="btn bg-primary text-white"
                                            th:href="@{/admin/{id}/edit(id=${user.getId()})}">Edit</a>
@@ -98,39 +100,40 @@
                         </div>
                         <div class="bg-white w-100 p-3">
                             <div class="col-md-5 mx-auto">
-                                <form>
+                                <form th:method="POST" th:action="@{/admin}" th:object="${newUser}">
                                     <div class="text-center">
                                         <div class="mb-3">
                                             <label for="InputFirstName" class="form-label"><b>First name</b></label>
-                                            <input type="text" class="form-control" id="InputFirstName">
+                                            <input th:field="*{firstName}" type="text" class="form-control" id="InputFirstName" required>
+                                            <div style="color:red" th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}">First name Error</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="InputLastName" class="form-label"><b>Last name</b></label>
-                                            <input type="text" class="form-control" id="InputLastName">
+                                            <input th:field="*{lastName}" type="text" class="form-control" id="InputLastName" required>
+                                            <div style="color:red" th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}">Last name Error</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="InputAge" class="form-label"><b>Age</b></label>
-                                            <input type="number" class="form-control" id="InputAge">
+                                            <input th:field="*{age}" type="number" class="form-control" id="InputAge" required>
+                                            <div style="color:red" th:if="${#fields.hasErrors('age')}" th:errors="*{age}">Age Error</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="exampleInputEmail1" class="form-label"><b>Email</b></label>
-                                            <input type="email" class="form-control" id="exampleInputEmail1"
-                                                   aria-describedby="emailHelp">
-                                            <div id="emailHelp" class="form-text">We'll never share your email with
-                                                anyone
-                                                else.
-                                            </div>
+                                            <input th:field="*{email}" type="email" class="form-control" id="exampleInputEmail1"
+                                                   aria-describedby="emailHelp" required>
+                                            <div id="emailHelp" class="form-text">We'll never share your email with anyone else.</div>
                                         </div>
                                         <div class="mb-3">
                                             <label for="exampleInputPassword1"
                                                    class="form-label"><b>Password</b></label>
-                                            <input type="password" class="form-control" id="exampleInputPassword1">
+                                            <input th:field="*{password}" type="password" class="form-control" id="exampleInputPassword1" required>
+                                            <div style="color:red" th:if="${#fields.hasErrors('password')}" th:errors="*{password}">Password Error</div>
                                         </div>
                                         <div>
                                             <div><b>Role</b></div>
-                                            <select class="form-select" multiple aria-label="multiple select example">
-                                                <option selected>ADMIN</option>
-                                                <option value="1">USER</option>
+                                            <select class="form-select" name="listRoles[]" multiple aria-label="multiple select example" required>
+                                                <option  value="ROLE_ADMIN">ADMIN</option>
+                                                <option value="ROLE_USER">USER</option>
                                             </select>
                                         </div>
                                         <div class="p-3 col-md-5 mx-auto">
@@ -143,8 +146,6 @@
                         </div>
                     </div>
                 </div>
-
-
             </div>
             <!--        User information-->
             <div class="tab-pane fade bg-light" id="pills-user-profile">
@@ -156,6 +157,7 @@
                         <table border="1" class="table table-hover">
                             <tr>
                                 <th>ID</th>
+                                <th>First Name</th>
                                 <th>Last Name</th>
                                 <th>Age</th>
                                 <th>Email</th>
@@ -164,6 +166,7 @@
                             <tr>
                             <tr th:each="user : ${currentUser}">
                                 <td th:utext="${user.getId()}"></td>
+                                <td th:utext="${user.firstName}"></td>
                                 <td th:utext="${user.getUsername()}"></td>
                                 <td th:utext="${user.getAge()}"></td>
                                 <td th:utext="${user.getEmail()}"></td>

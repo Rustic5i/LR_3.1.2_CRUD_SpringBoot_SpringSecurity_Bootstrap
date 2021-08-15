@@ -18,7 +18,7 @@ public interface DAO {
 
     User getUserById(Long id);
 
-    User findByUsername(String username);
+    User findByUserEmail(String username);
 
     Set<Role> getSetRoles(String... roles);
 }

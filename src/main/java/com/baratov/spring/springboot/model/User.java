@@ -6,6 +6,7 @@ import org.hibernate.annotations.FetchMode;
 import org.hibernate.annotations.NaturalId;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
+
 import javax.persistence.*;
 import javax.validation.constraints.Email;
 import javax.validation.constraints.Min;
@@ -28,16 +29,21 @@ public class User implements UserDetails {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @NaturalId(mutable = true)
     @NotEmpty(message = "Name should not be empty")
     @Size(min = 3, max = 30, message = "Name should be between 2 and 30 characters")
-    @Column
-    private String username;
+    @Column(name = "last_name")
+    private String lastName;
+
+    @NotEmpty(message = "First name should not be empty")
+    @Size(min = 3, max = 30, message = "Name should be between 2 and 30 characters")
+    @Column(name = "first_name")
+    private String firstName;
 
     @Min(value = 0, message = "Age should be greater than 0")
     @Column
     private int age;
 
+    @NaturalId(mutable = true)
     @NotEmpty(message = "Email should not be empty")
     @Email(message = "Email should be valid")
     @Column
@@ -58,8 +64,9 @@ public class User implements UserDetails {
     public User() {
     }
 
-    public User(String name, int age, String email) {
-        this.username = name;
+    public User(String lastName, String firstName, int age, String email) {
+        this.lastName = lastName;
+        this.firstName = firstName;
         this.age = age;
         this.email = email;
     }
@@ -101,22 +108,24 @@ public class User implements UserDetails {
         this.password = password;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
-    }
-
     public Set<Role> getRoles() {
         return roles;
     }
 
-    @Override
-    public String toString() {
-        return "User{" +
-                "id=" + id +
-                ", username='" + username + '\'' +
-                ", age=" + age +
-                ", email='" + email + '\'' +
-                '}';
+    public String getLastName() {
+        return lastName;
+    }
+
+    public void setLastName(String lastName) {
+        this.lastName = lastName;
+    }
+
+    public String getFirstName() {
+        return firstName;
+    }
+
+    public void setFirstName(String firstName) {
+        this.firstName = firstName;
     }
 
     @Override
@@ -131,8 +140,9 @@ public class User implements UserDetails {
 
     @Override
     public String getUsername() {
-        return username;
+        return email;
     }
+
 
     @Override
     public boolean isAccountNonExpired() { //срок Действия Учетной Записи Не Истек
@@ -159,11 +169,24 @@ public class User implements UserDetails {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
         User user = (User) o;
-        return Objects.equals(username, user.username);
+        return Objects.equals(email, user.email);
     }
 
     @Override
     public int hashCode() {
-        return Objects.hash(username);
+        return Objects.hash(email);
+    }
+
+    @Override
+    public String toString() {
+        return "User{" +
+                "id=" + id +
+                ", lastName='" + lastName + '\'' +
+                ", firstName='" + firstName + '\'' +
+                ", age=" + age +
+                ", email='" + email + '\'' +
+                ", password='" + password + '\'' +
+                ", roles=" + roles +
+                '}';
     }
 }
