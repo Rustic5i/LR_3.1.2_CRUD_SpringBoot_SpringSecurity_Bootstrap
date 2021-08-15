@@ -20,4 +20,5 @@ public interface IUserService {
     User getUserById(Long id);
 
     void updateUser(User updateUser) throws SaveObjectException;
+    void updatePrincipal(User updateUser);
 }

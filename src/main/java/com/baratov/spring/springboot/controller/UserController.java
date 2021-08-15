@@ -8,16 +8,18 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
+
 import java.security.Principal;
+import java.util.Arrays;
 
 @Controller
 @RequestMapping("/")
 public class UserController {
-    private IUserService dao;
+    private IUserService userService;
 
     @Autowired
-    public UserController(IUserService dao) {
-        this.dao = dao;
+    public UserController(IUserService userService) {
+        this.userService = userService;
     }
 
     @ModelAttribute("newUser")
@@ -27,7 +29,18 @@ public class UserController {
 
     @GetMapping("/user")
     public String index(Model model, Principal principal) {
-        model.addAttribute("people", dao.findByUsername(principal.getName()));
+        User currentUser = userService.findByUsername(principal.getName());
+
+        model.addAttribute("currentUserName", currentUser.getUsername());
+
+        model.addAttribute("currentUserRoles", currentUser.getRoles()
+                .toString()
+                .replace("[", "")
+                .replace("ROLE_", "")
+                .replace("]", ""));
+
+        model.addAttribute("currentUser", currentUser);
+        model.addAttribute("test","БАЦЦЦЦ!!!");
         return "view/index";
     }
 }

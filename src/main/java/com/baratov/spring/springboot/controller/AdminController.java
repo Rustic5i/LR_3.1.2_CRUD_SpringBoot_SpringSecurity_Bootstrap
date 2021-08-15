@@ -9,7 +9,10 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.servlet.ModelAndView;
+
 import javax.validation.Valid;
+import java.security.Principal;
 import java.util.Set;
 
 @Controller
@@ -24,12 +27,33 @@ public class AdminController {
     }
 
     @ModelAttribute("newUser")
-    public User getPerson() {
+    public User newPerson() {
         return new User();
     }
+//
+//    @GetMapping("/admin")
+//    public ModelAndView userProfileUpdate(Principal principal) {
+//        ModelAndView modelAndView = new ModelAndView();
+//        modelAndView.addObject("userName", userEntity.getName());
+//        modelAndView.addObject("userSurname", userEntity.getSurname());
+//        modelAndView.addObject("userMiddleName", userEntity.getMiddleName());
+//        modelAndView.addObject("userPhone", userEntity.getPhone());
+//        return modelAndView;
+//    }
 
     @GetMapping("/admin")
-    public String index(Model model) {
+    public String index(Model model, Principal principal) {
+        User currentUser = userService.findByUsername(principal.getName());
+
+        model.addAttribute("currentUserName", currentUser.getUsername());
+
+        model.addAttribute("currentUserRoles", currentUser.getRoles()
+                .toString()
+                .replace("[", "")
+                .replace("ROLE_","")
+                .replace("]",""));
+        model.addAttribute("currentUserName", principal.getName());
+        model.addAttribute("currentUser",currentUser);
         model.addAttribute("people", userService.getAllUsers());
         return "view/index";
     }
@@ -38,7 +62,7 @@ public class AdminController {
     public String creat(@ModelAttribute("newUser") @Valid User user,
                         BindingResult bindingResult, Model model,
                         @RequestParam(name = "listRoles[]", required = false) String... roles) {
-         model.addAttribute("people", userService.getAllUsers());
+        model.addAttribute("people", userService.getAllUsers());
         if (bindingResult.hasErrors()) {
             return "view/index";
         }
@@ -63,12 +87,12 @@ public class AdminController {
 
     @GetMapping("/admin/{id}/edit")
     public String edit(@ModelAttribute("id") Long id, Model model) {
-        model.addAttribute("user", userService.getUserById(id));
+        model.addAttribute("updatePerson", userService.getUserById(id));
         return "view/edit";
     }
 
     @PatchMapping("/admin/{id}")
-    public String updatePerson(@ModelAttribute("user") @Valid User updateuser,
+    public String updatePerson(@ModelAttribute("updatePerson") @Valid User updateuser,
                                BindingResult bindingResult,
                                @RequestParam(name = "listRoles[]", required = false) String... roles) {
         if (bindingResult.hasErrors()) {
