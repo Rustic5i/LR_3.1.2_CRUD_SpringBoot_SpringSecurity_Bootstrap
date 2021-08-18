@@ -8,9 +8,7 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.RequestMapping;
-
 import java.security.Principal;
-import java.util.Arrays;
 
 @Controller
 @RequestMapping("/")
@@ -40,6 +38,6 @@ public class UserController {
                 .replace("]", ""));
 
         model.addAttribute("currentUser", currentUser);
-        return "view/index";
+        return "view/user";
     }
 }

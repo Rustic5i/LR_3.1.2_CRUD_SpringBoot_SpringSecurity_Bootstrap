@@ -6,49 +6,26 @@ import com.baratov.spring.springboot.model.User;
 import com.baratov.spring.springboot.myExcetion.SaveObjectException;
 import org.hibernate.Hibernate;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
-import org.springframework.security.core.userdetails.UserDetailsService;
-import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.security.web.authentication.preauth.PreAuthenticatedAuthenticationToken;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import javax.servlet.http.HttpServletRequest;
 import java.util.List;
 import java.util.Set;
 
 @Service
-public class UserService implements UserDetailsService, IUserService {
+public class UserService implements IUserService {
 
     private DAO dao;
 
     private PasswordEncoder encoder;
 
     @Autowired
-    private HttpServletRequest req;
-    @Autowired
-    private AuthenticationManager authManager;
-
-    @Autowired
     public UserService(DAO dao, PasswordEncoder encoder) {
         this.dao = dao;
         this.encoder = encoder;
-    }
-
-
-    @Override
-    @Transactional
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        User user = findByUserEmail(username);
-        if (user == null) {
-            throw new UsernameNotFoundException(String.format("User '%s' not found ", username));
-        }
-        return new org.springframework.security.core.userdetails.User(user.getEmail(),
-                user.getPassword(), user.getAuthorities());
     }
 
     @Override
@@ -106,27 +83,14 @@ public class UserService implements UserDetailsService, IUserService {
     @Override
     @Transactional(rollbackFor = {Exception.class})
     public void updateUser(User updateUser) throws SaveObjectException {
+        updateUser.setPassword(encoder.encode(updateUser.getPassword()));
+
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         User currentUser = dao.findByUserEmail(authentication.getName());
         if ((currentUser.getId() == updateUser.getId()) && !(currentUser.getEmail().equals(updateUser.getUsername()))) {
             dao.updateUser(updateUser);
-            updatePrincipal(updateUser);
-        } else {
-            dao.updateUser(updateUser);
+            SecurityContextHolder.clearContext(); //logout current user
         }
-    }
-
-    public void updatePrincipal(User updateUser) {
-        Authentication authentication = new PreAuthenticatedAuthenticationToken(updateUser, updateUser.getEmail());
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        //////////////
-//        UsernamePasswordAuthenticationToken authReq
-//                = new UsernamePasswordAuthenticationToken(updateUser.getUsername(), "111");
-//        Authentication auth = authManager.authenticate(authReq); //сверяем данные с бд
-//
-//        SecurityContext sc = SecurityContextHolder.getContext(); //получаем хранилище
-//        sc.setAuthentication(auth);                          // ложем  в хранилище объектов
-//        HttpSession session = req.getSession(true);
-//        session.setAttribute(SPRING_SECURITY_CONTEXT_KEY, sc);
+        dao.updateUser(updateUser);
     }
 }

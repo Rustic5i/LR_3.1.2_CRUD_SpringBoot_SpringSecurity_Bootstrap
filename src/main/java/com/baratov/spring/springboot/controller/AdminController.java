@@ -9,8 +9,6 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.servlet.ModelAndView;
-
 import javax.validation.Valid;
 import java.security.Principal;
 import java.util.Set;
@@ -73,7 +71,7 @@ public class AdminController {
             userService.registrationUser(user);
         } catch (SaveObjectException e) {
             e.getMessage();
-            bindingResult.rejectValue("username", "SaveObjectException",
+            bindingResult.rejectValue("email", "SaveObjectException",
                     "Exception: The user with the name " + user.getEmail() + " already exists");
             return "view/index";
         }
@@ -86,18 +84,20 @@ public class AdminController {
         return "redirect:/admin";
     }
 
-    @GetMapping("/admin/{id}/edit")
-    public String edit(@ModelAttribute("id") Long id, Model model) {
-        model.addAttribute("updatePerson", userService.getUserById(id));
-        return "view/edit";
-    }
+//    @GetMapping("/admin/{id}/edit") // это delete
+//    public String edit(@ModelAttribute("id") Long id, Model model) {
+//        model.addAttribute("updatePerson", userService.getUserById(id));
+////        return "view/edit";
+//        return "redirect:/admin";
+//    }
 
     @PatchMapping("/admin/{id}")
     public String updatePerson(@ModelAttribute("updatePerson") @Valid User updateuser,
                                BindingResult bindingResult,
                                @RequestParam(name = "listRoles[]", required = false) String... roles) {
         if (bindingResult.hasErrors()) {
-            return "view/edit";
+//            return "view/edit";
+            return "redirect:/admin";
         }
         try {
             Set<Role> roleSet = userService.getSetRoles(roles);
@@ -107,7 +107,8 @@ public class AdminController {
             e.getMessage();
             bindingResult.rejectValue("username", "SaveObjectException",
                     "Exception: The user with the name " + updateuser.getEmail() + " already exists");
-            return "view/edit";
+//            return "view/edit";
+            return "redirect:/admin";
         }
         return "redirect:/admin";
     }
